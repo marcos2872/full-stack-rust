@@ -1,4 +1,5 @@
 pub mod models;
 pub mod handlers;
-pub mod logs;
 pub mod routes;
+pub mod utils;
+pub mod config;

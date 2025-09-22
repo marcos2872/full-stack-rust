@@ -1,34 +1,28 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>
-        {% block title %} {% endblock %} - FullStackRust
-    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} {% endblock %} - MyTodoSite</title>
     {% block meta %}{% endblock %}
-    <link rel="stylesheet" href="/static/css/global.css">
-    <link rel="shortcut icon" href="/static/img/favicon.png" type="image/png">
-
+    <link rel="stylesheet" href="/static/css/global.css" />
+    <link rel="shortcut icon" href="/static/img/favicon.png" type="image/png" />
     {% block css %}
     {% endblock %}
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 </head>
+
 <body>
 <header>
-
-<nav>
-    <a href="/">Home</a>
-    <a href="/log-in">Log-in</a>
-    <a href="/creates">Creates</a>
-    <a href="/todos">Todos</a>
-    <a href="/sing-up">Sing-up</a>
-</nav>
+    {% include "partials/navigation.html" %}
 </header>
 
-    <main>
-        {% block main %}
-        <h1>Home</h1>
-        {% endblock %}
-    </main>
+<main>
+    {% block main %}
+
+    {% endblock %}
+</main>
 </body>
+
 </html>

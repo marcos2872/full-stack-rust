@@ -22,4 +22,8 @@ pub struct TodosTemplate {
 
 #[derive(Template)]
 #[template(path = "pages/sing-up.html")]
-pub struct SingUpTemplate {}
+pub struct SingUpTemplate<'t> {
+    pub email: &'t str,
+    pub email_error: &'t str,
+    pub password_error: &'t str,
+}
