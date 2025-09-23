@@ -1,30 +1,50 @@
-use axum::response::{Html, IntoResponse, Redirect, Response};
 use crate::models::{
     templates::{LogInTemplate, SingUpTemplate},
     user_form_model::AuthFormModel
 };
 use askama::Template;
-use axum::Form;
-use axum::http::StatusCode;
+use axum::{
+    extract::State,
+    response::{Html, IntoResponse, Redirect, Response},
+    Form,
+    http::StatusCode
+};
 use validator::Validate;
 use crate::utils::extract_error::extract_error;
+use crate::data::{user, errors::DataError};
+use crate::handlers::errors::AppError;
+use crate::models::app::AppState;
 
-pub async fn log_in() -> Response {
-    let html = LogInTemplate{}.render().unwrap();
+pub async fn log_in() -> Result<Response, AppError> {
+    let html = LogInTemplate{}.render()?;
 
-    Html(html).into_response()
+    Ok(Html(html).into_response())
 }
 
-pub async fn sing_up() -> Response {
-    let html = SingUpTemplate{email: "", email_error: "", password_error: ""}.render().unwrap();
+pub async fn sing_up() -> Result<Response, AppError> {
+    let html = SingUpTemplate{email: "", email_error: "", password_error: ""}.render()?;
 
-    Html(html).into_response()
+    Ok(Html(html).into_response())
 }
 
-pub async fn post_sing_up(Form(user_form): Form<AuthFormModel>) -> Response {
+pub async fn post_sing_up(State(app_state): State<AppState>, Form(user_form): Form<AuthFormModel>) -> Result<Response, AppError> {
     match user_form.validate() {
         Ok(_) => {
-            Redirect::to("/").into_response()
+            let response = user::create_user(
+                &app_state.db,
+                &user_form.email,
+                &user_form.password).await;
+
+            if let Err(err) = response {
+                if let DataError::FailedQuery(e) = err {
+                    tracing::error!("Failed to create user: {}", e);
+
+                    return Ok(Redirect::to("/sign-up").into_response())
+                } else {
+                    Err(err)?
+                }
+            }
+            Ok(Redirect::to("/").into_response())
         }
         Err(e) => {
 
@@ -45,11 +65,11 @@ pub async fn post_sing_up(Form(user_form): Form<AuthFormModel>) -> Response {
                 email: &user_form.email,
                 email_error: &email_error,
                 password_error: &password_error,
-            }.render().unwrap();
+            }.render()?;
 
             let response = Html(html_string).into_response();
 
-            (StatusCode::BAD_REQUEST, response).into_response()
+            Ok((StatusCode::BAD_REQUEST, response).into_response())
 
         }
     }

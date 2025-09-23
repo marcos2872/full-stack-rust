@@ -27,3 +27,8 @@ pub struct SingUpTemplate<'t> {
     pub email_error: &'t str,
     pub password_error: &'t str,
 }
+
+#[derive(Template)]
+#[template(path = "pages/server-error.html")]
+pub struct ServerErrorTemplate {
+}

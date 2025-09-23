@@ -11,7 +11,8 @@ use crate::handlers::{
 };
 use crate::handlers::auth::post_sing_up;
 
-pub fn routers() -> Router {
+use crate::models::app::AppState;
+pub fn routers(app_state: AppState) -> Router {
     let server_dir = ServeDir::new("static");
 
     let app = Router::new()
@@ -22,6 +23,7 @@ pub fn routers() -> Router {
         .route("/todos", get(todos))
         .route("/sign-up", get(sing_up).post(post_sing_up))
         .nest_service("/static", server_dir)
+        .with_state(app_state)
         .layer(TraceLayer::new_for_http()
             .make_span_with(|_: &Request<Body>| tracing::info_span!("http-server"))
             .on_request(on_request)
